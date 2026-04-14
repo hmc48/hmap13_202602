@@ -735,7 +735,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
         }
     }    
 
-    // 4. データ読み込み関数群
+        // 4. データ読み込み関数群（修正版）
     function loadChome(idx) {
       fetch(`geo_0_町丁目境界${idx}.geojson`)
         .then(res => res.json())
@@ -747,51 +747,47 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
             style: {
               color: "red",
               weight: 1,
-              fillOpacity: 0.03   // ★ 0にしない（スマホ対策）
+              fillOpacity: 0.05,  // 反応を良くするため僅かにアップ
+              interactive: true   // ★重要：Canvasレンダラーでクリックを有効にする
             },
 
             onEachFeature: (f, l) => {
-
               const content =
                 `<strong>${f.properties["町丁目名"]}</strong><br>` +
                 `人口：${f.properties["JINKO"] ?? "不明"}`;
 
               const isTouch = 'ontouchstart' in window;
 
-              // ===== PC：マウスオーバー =====
+              // ツールチップ設定（PCのみ）
               if (!isTouch) {
-                l.bindTooltip(content, {
-                  sticky: true,
-                  opacity: 0.9,
-                  direction: "auto"
-                });
+                l.bindTooltip(content, { sticky: true, opacity: 0.9, direction: "auto" });
               }
 
-              // ===== スマホ：タップ =====
+               // ポップアップ設定
               l.bindPopup(content);
 
-              // ===== 視覚フィードバック =====
+              // イベント設定
               l.on({
+                // ★追加：クリック/タップ時の挙動を明示
+                click: (e) => {
+                  L.DomEvent.stopPropagation(e); // ★地図クリックイベントへの伝搬を停止
+                  l.openPopup(e.latlng);
+              
+                  // 施設クリック時と同様にモード解除も行うと親切
+                  map.pm.disableDraw();
+                  toggleTextMode(false);
+                },
+            
                 mouseover: e => {
-                  e.target.setStyle({
-                    weight: 3,
-                    color: "#ff0000",
-                    fillOpacity: 0.15
-                  });
+                  e.target.setStyle({ weight: 3, color: "#ff0000", fillOpacity: 0.2 });
                 },
 
                 mouseout: e => {
-                  e.target.setStyle({
-                    weight: 1,
-                    color: "red",
-                    fillOpacity: 0.03
-                  });
+                  e.target.setStyle({ weight: 1, color: "red", fillOpacity: 0.05 });
                 },
-
-              });
+               });
             }
           });
-
         })
         .catch(err => console.error(err));
     }
@@ -817,7 +813,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -873,7 +869,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -929,7 +925,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -985,7 +981,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1041,7 +1037,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1097,7 +1093,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1153,7 +1149,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1209,7 +1205,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1265,7 +1261,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1321,7 +1317,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1377,7 +1373,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1433,7 +1429,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1489,7 +1485,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1545,7 +1541,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1601,7 +1597,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1657,7 +1653,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1713,7 +1709,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1769,7 +1765,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1825,7 +1821,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1881,7 +1877,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1937,7 +1933,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -1993,7 +1989,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2049,7 +2045,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2105,7 +2101,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2161,7 +2157,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2217,7 +2213,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2273,7 +2269,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2329,7 +2325,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2385,7 +2381,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2441,7 +2437,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2497,7 +2493,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2553,7 +2549,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2609,7 +2605,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2665,7 +2661,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2721,7 +2717,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2777,7 +2773,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2833,7 +2829,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2889,7 +2885,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -2945,7 +2941,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
@@ -3001,7 +2997,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 const anchor = size / 2; // 中心点を自動計算
 
                 // ★修正：描画用の半径を明示的に定義（radiusエラーの防止）
-                // 病院（star）は少し大きく(12px)、その他は8pxに設定
+                // 病院（star）は少し大きく(14px)、その他は12pxに設定
                 const markerRadius = (shape === 'star') ? 14 : 12;
 
                 // ★修正：L.marker ではなく、Canvas描画の L.CustomMarker を使用
