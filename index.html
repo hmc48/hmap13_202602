@@ -747,57 +747,36 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
             style: {
               color: "red",
               weight: 1,
-              fillOpacity: 0.05,  // 反応を良くするため僅かにアップ
-              interactive: true   // ★重要：Canvasレンダラーでクリックを有効にする
+              fillOpacity: 0.05,
+              interactive: true
             },
 
-            // --- 新コード（修正版） ---
             onEachFeature: (f, l) => {
-              // 1. プロパティ取得の堅牢化（データによってキーが異なるケースへの対策）
-              const p = f.properties;
-              const name = p["町丁目名"] || (p["CITY_NAME"] || "") + (p["S_NAME"] || "") || "名称不明";
-              const pop = (p["JINKO"] !== undefined) ? p["JINKO"] : (p["JINKO_NUM"] !== undefined ? p["JINKO_NUM"] : "不明");
+              const content =
+                `<strong>${f.properties["町丁目名"]}</strong><br>` +
+                `人口：${f.properties["JINKO"] ?? "不明"}`;
 
-              const content = `<strong>${name}</strong><br>人口：${pop}`;
+              const isTouch = 'ontouchstart' in window;
 
-              // 2. ツールチップ設定：isTouch判定を削除し、常にバインド
-              l.bindTooltip(content, { 
-                sticky: true, 
-                opacity: 0.9, 
-                direction: "auto" 
-              });
+              // PC（マウスオーバー）
+              if (!isTouch) {
+                l.bindTooltip(content, {
+                  sticky: true,
+                  opacity: 0.9,
+                  direction: "auto"
+                });
+              }
 
+              // スマホ（タップ）
               l.bindPopup(content);
 
+              // 視覚効果（そのままでOK）
               l.on({
-                click: (e) => {
-                  L.DomEvent.stopPropagation(e);
-                  l.openPopup(e.latlng);
-                   map.pm.disableDraw();
-                  toggleTextMode(false);
-    },
-
-                mouseover: (e) => {
-                  const layer = e.target;
-                  layer.setStyle({ 
-                    weight: 3, 
-                    color: "#ff0000", 
-                    fillOpacity: 0.3 
-                  });
-      
-                   // 3. 重要：Canvas上で確実にツールチップを出すための再描画トリガー
-                  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                      layer.bringToFront(); // ポリゴンを最前面に浮かせてイベントを確定させる
-                  }
+                mouseover: e => {
+                  e.target.setStyle({ weight: 3, color: "#ff0000", fillOpacity: 0.2 });
                 },
-
-                mouseout: (e) => {
-                  const layer = e.target;
-                  layer.setStyle({ 
-                    weight: 1, 
-                    color: "red", 
-                    fillOpacity: 0.05 
-                  });
+                mouseout: e => {
+                  e.target.setStyle({ weight: 1, color: "red", fillOpacity: 0.05 });
                 }
               });
             }
