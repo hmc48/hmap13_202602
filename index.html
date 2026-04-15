@@ -753,41 +753,39 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
 
             // --- 新コード（修正版） ---
             onEachFeature: (f, l) => {
-              // プロパティ名の取得を柔軟にする（データソースによる表記揺れ対策）
-              const name = f.properties["町丁目名"] || (f.properties["CITY_NAME"] || "") + (f.properties["S_NAME"] || "") || "名称不明";
-              const jinko = f.properties["JINKO"] || f.properties["JINKO_NUM"] || "不明";
-
+              // プロパティ取得の確実性を高める
+              const name = f.properties["町丁目名"] || "名称不明";
+              const jinko = f.properties["JINKO"] !== undefined ? f.properties["JINKO"] : "不明";
+              
               const content = `<strong>${name}</strong><br>人口：${jinko}`;
 
-              // ツールチップ設定：条件分岐を外し、常にバインドする（sticky:trueで追従させる）
+              // ツールチップ設定：条件を外して常にバインドする
               l.bindTooltip(content, { 
                 sticky: true, 
                 opacity: 0.9, 
-                direction: "auto",
-                className: 'chome-tooltip'
+                direction: "auto" 
               });
 
               l.bindPopup(content);
 
               l.on({
                 click: (e) => {
-                   // 経路探索中やテキストモード中はポップアップを抑制
-                  if (isRouteMode || isTextMode) return;
-      
                   L.DomEvent.stopPropagation(e);
-                   l.openPopup(e.latlng);
+                  l.openPopup(e.latlng);
+                  map.pm.disableDraw();
+                  toggleTextMode(false);
                 },
-
+            
                 mouseover: (e) => {
                   const layer = e.target;
                   layer.setStyle({ 
                     weight: 3, 
                     color: "#ff0000", 
-                    fillOpacity: 0.3 // 反応を分かりやすくするため少し濃くする
+                    fillOpacity: 0.3 // 反応を分かりやすく少し濃く
                   });
-                  // Canvasレンダラーの場合、前面に持ってくることで反応を確実にする
+                  // Canvasレンダラーでツールチップを確実に出すための処理
                   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                      layer.bringToFront();
+                    layer.bringToFront();
                   }
                 },
 
@@ -797,7 +795,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                     color: "red", 
                     fillOpacity: 0.05 
                   });
-                }
+                },
               });
             }
           });
