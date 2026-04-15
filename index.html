@@ -753,13 +753,14 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
 
             // --- 新コード（修正版） ---
             onEachFeature: (f, l) => {
-              // プロパティ取得の確実性を高める
-              const name = f.properties["町丁目名"] || "名称不明";
-              const jinko = f.properties["JINKO"] !== undefined ? f.properties["JINKO"] : "不明";
-              
-              const content = `<strong>${name}</strong><br>人口：${jinko}`;
+              // 1. プロパティ取得の堅牢化（データによってキーが異なるケースへの対策）
+              const p = f.properties;
+              const name = p["町丁目名"] || (p["CITY_NAME"] || "") + (p["S_NAME"] || "") || "名称不明";
+              const pop = (p["JINKO"] !== undefined) ? p["JINKO"] : (p["JINKO_NUM"] !== undefined ? p["JINKO_NUM"] : "不明");
 
-              // ツールチップ設定：条件を外して常にバインドする
+              const content = `<strong>${name}</strong><br>人口：${pop}`;
+
+              // 2. ツールチップ設定：isTouch判定を削除し、常にバインド
               l.bindTooltip(content, { 
                 sticky: true, 
                 opacity: 0.9, 
@@ -772,30 +773,32 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
                 click: (e) => {
                   L.DomEvent.stopPropagation(e);
                   l.openPopup(e.latlng);
-                  map.pm.disableDraw();
+                   map.pm.disableDraw();
                   toggleTextMode(false);
-                },
-            
+    },
+
                 mouseover: (e) => {
                   const layer = e.target;
                   layer.setStyle({ 
                     weight: 3, 
                     color: "#ff0000", 
-                    fillOpacity: 0.3 // 反応を分かりやすく少し濃く
+                    fillOpacity: 0.3 
                   });
-                  // Canvasレンダラーでツールチップを確実に出すための処理
+      
+                   // 3. 重要：Canvas上で確実にツールチップを出すための再描画トリガー
                   if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                    layer.bringToFront();
+                      layer.bringToFront(); // ポリゴンを最前面に浮かせてイベントを確定させる
                   }
                 },
 
                 mouseout: (e) => {
-                  e.target.setStyle({ 
+                  const layer = e.target;
+                  layer.setStyle({ 
                     weight: 1, 
                     color: "red", 
                     fillOpacity: 0.05 
                   });
-                },
+                }
               });
             }
           });
