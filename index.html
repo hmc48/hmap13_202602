@@ -37,13 +37,26 @@ body { margin:0; padding:0; overflow:hidden; font-family: sans-serif; }
   box-shadow:0 2px 8px rgba(0,0,0,0.3); cursor:pointer; font-size:18px; z-index:2000;
   position:fixed; background:white;
 }
-#control-btn { top:15px; right:15px; background:#007bff; color:white; }
-#search-btn { top:55px; right:15px; background:#28a745; color:white; }
-#info-btn { top:95px; right:15px; background:#ff69b4; color:white; }
-#jump-btn { top:135px; right:15px; background:#ff9800; color:white; }
+/* 最初非表示 */
+.right-tool {
+  display: none;
+}
+
+/* ★最初のホーム */
+#toggle-tools-btn {
+  top: 15px;   /* ←位置はあとで微調整OK */
+  right: 15px;
+  background:#fd63db;
+  color:white;
+}
+
+#control-btn { top:55px; right:15px; background:#007bff; color:white; }
+#search-btn { top:95px; right:15px; background:#28a745; color:white; }
+#info-btn { top:135px; right:15px; background:#ff69b4; color:white; }
+#jump-btn { top:175px; right:15px; background:#ff9800; color:white; }
 /* 追加：経路探索ボタンとパネル */
-#route-btn { top:175px; right:15px; background:#673ab7; color:white; }
-#reload-btn { top:215px; right:15px; background:#6c757d; color:white; }
+#route-btn { top:215px; right:15px; background:#673ab7; color:white; }
+#reload-btn { top:255px; right:15px; background:#6c757d; color:white; }
 #route-panel {
   display:none; position:fixed; top:45px; right:75px; 
   background:white; padding:15px; border-radius:8px; z-index:4000;
@@ -103,7 +116,7 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
 .search-item:hover { background:#f0f0f0; cursor:pointer; }
     /* 図形描写追加 */
     .leaflet-top.leaflet-right {
-      margin-top: 255px;
+      margin-top: 295px;
     }
 
     /* 図形描画レイヤーをマーカーより下に配置 */
@@ -138,7 +151,8 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
     <button onclick="toggleTextMode(false)" style="width:100%; padding:5px; cursor:pointer;">閉じる</button>
   </div>
 
-  <div id="control-btn" class="circle-btn" onclick="togglePanel('controls')">🛠️</div>
+  <div id="toggle-tools-btn" class="circle-btn" onclick="toggleRightTools()">🏠</div>
+  <div id="control-btn" class="circle-btn right-tool" onclick="togglePanel('controls')">🛠️</div>
   <div id="controls">
     <span class="close-x" onclick="togglePanel('controls')">×</span>
     <div class="section-title">境界線の一括操作</div>
@@ -213,17 +227,17 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
     <label class="layer-item"><input type="checkbox" class="facility-toggle" value="地域密着型通所介護"> 地域密着型通所介護</label>
 
   </div>
-  <div id="search-btn" class="circle-btn" onclick="togglePanel('search-panel')">🔍</div>
+  <div id="search-btn" class="circle-btn right-tool" onclick="togglePanel('search-panel')">🔍</div>
   <div id="search-panel">
     <input type="text" id="search-input" placeholder="and検索（例：内科 五反田）" style="width:100%; padding:10px; box-sizing:border-box; font-size:16px;">
     <button id="show-all-results-btn" style="width:100%; margin-top:10px; padding:8px; cursor:pointer; background:#28a745; color:white; border:none; border-radius:4px; font-weight:bold;">検索結果をすべて表示</button>
     <div id="search-results" style="max-height:200px; overflow-y:auto; margin-top:10px;"></div>
   </div>
-  <div id="info-btn" class="circle-btn" onclick="togglePanel('info-panel')">i</div>
-  <div id="jump-btn" class="circle-btn" onclick="jumpToLocation()">📍</div>
+  <div id="info-btn" class="circle-btn right-tool" onclick="togglePanel('info-panel')">i</div>
+  <div id="jump-btn" class="circle-btn right-tool" onclick="jumpToLocation()">📍</div>
   
-  <div id="route-btn" class="circle-btn" onclick="toggleRouteMode()">🚗</div>
-  <div id="reload-btn" class="circle-btn" onclick="confirmReload()">↩️</div>
+  <div id="route-btn" class="circle-btn right-tool" onclick="toggleRouteMode()">🚗</div>
+  <div id="reload-btn" class="circle-btn right-tool" onclick="confirmReload()">↩️</div>
   
   <div id="route-panel">
     <div style="font-weight:bold; margin-bottom:10px;">経路探索</div>
@@ -258,13 +272,75 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
     <a href="https://www.mhlw.go.jp/chosakuken/index.html" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();">同利用規約</a><br>
     e-Stat国勢調査2020年<br>
     【機能】<br>
-    地図種類変更、医療圏境界線表示<br>
-    施設選択（各ページへリンク）<br>
+    <span style="
+        background-color: blue; /* 背景を青色に */
+        border-radius: 50%;       /* 角を丸くして円に */
+        padding: 10px;            /* ピンと円の余白 */
+        display: inline-flex;     /* 中身（📍）を中央寄せ */
+        align-items: center;
+        justify-content: center;
+        width: 5px;              /* 円の幅 */
+        height: 5px;             /* 円の高さ */
+    ">
+        🛠️
+    </span>
+    設定 地図種類変更、医療圏境界線表示<br>
+    　　施設選択（各ページへリンク）<br>
+    　　人口表示（境界線初期表示時）<br>
+    <span style="
+        background-color: green; /* 背景を緑色に */
+        border-radius: 50%;       /* 角を丸くして円に */
+        padding: 10px;            /* ピンと円の余白 */
+        display: inline-flex;     /* 中身（🔍）を中央寄せ */
+        align-items: center;
+        justify-content: center;
+        width: 5px;              /* 円の幅 */
+        height: 5px;             /* 円の高さ */
+    ">
+        🔍
+    </span>
     検索機能(and検索)<br>
-    and検索の例:内科 秋葉原　診療所<br>
-    人口表示（境界線表示時）<br>
+    　　and検索の例:内科 秋葉原　診療所<br>
+    　　人口表示（境界線表示時）<br>
+    <span style="
+        background-color: orange; /* 背景をオレンジ色に */
+        border-radius: 50%;       /* 角を丸くして円に */
+        padding: 10px;            /* ピンと円の余白 */
+        display: inline-flex;     /* 中身（📍）を中央寄せ */
+        align-items: center;
+        justify-content: center;
+        width: 5px;              /* 円の幅 */
+        height: 5px;             /* 円の高さ */
+    ">
+        📍
+    </span>
+    住所検索(and検索)<br>
+        <span style="
+        background-color: blue; /* 背景を青色に */
+        border-radius: 50%;       /* 角を丸くして円に */
+        padding: 10px;            /* ピンと円の余白 */
+        display: inline-flex;     /* 中身（🚗）を中央寄せ */
+        align-items: center;
+        justify-content: center;
+        width: 5px;              /* 円の幅 */
+        height: 5px;             /* 円の高さ */
+    ">
+        🚗
+    </span>
+    経路探索（自動車、徒歩）<br>
+    <span style="
+        background-color: gray; /* 背景をグレー色に */
+        border-radius: 50%;       /* 角を丸くして円に */
+        padding: 10px;            /* ピンと円の余白 */
+        display: inline-flex;     /* 中身（✏️）を中央寄せ */
+        align-items: center;
+        justify-content: center;
+        width: 5px;              /* 円の幅 */
+        height: 5px;             /* 円の高さ */
+    ">
+        ✏️
+    </span>
     線、四角形、多角形、円の描写、テキスト入力<br>
-    経路検索（自動車、徒歩）<br>
     【注意事項】<br>
     マーカーが反応しない場合は、↩️初期化してください。（調査中）<br>
     【利用規約・ご意見・ご感想・お問い合わせ】<br>
@@ -362,19 +438,8 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
 
     map.pm.addControls({
       position: 'topright',
-      drawCircleMarker: false,
-      drawText: false,
-      rotateMode: false,
-      drawMarker: true,
-      drawPolyline: true,
-      drawRectangle: true,
-      drawPolygon: true,
-      drawCircle: true,
-      editMode: false,
-      dragMode: true,
-      cutPolygon: false,
-      removalMode: true,
     });
+    map.pm.removeControls(); // ★初期は非表示
 
     // --- 描画色の初期値管理 ---
     let currentSelectedColor = "#3388ff";
@@ -486,6 +551,51 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
         map.doubleClickZoom.enable(); // ダブルタップズーム有効化
       }
     }
+
+    // ★ここに追加（最適位置）
+    let toolsVisible = false;
+
+    function toggleRightTools() {
+      toolsVisible = !toolsVisible;
+
+      const tools = document.querySelectorAll('.right-tool');
+
+      if (toolsVisible) {
+        // 右側アイコン表示
+        tools.forEach(el => el.style.display = 'block');
+
+        // 図形描写も表示
+        map.pm.addControls({
+          position: 'topright',
+          drawCircleMarker: false,
+          drawText: false,
+          rotateMode: false,
+          drawMarker: true,
+          drawPolyline: true,
+          drawRectangle: true,
+          drawPolygon: true,
+          drawCircle: true,
+          editMode: false,
+          dragMode: true,
+          cutPolygon: false,
+          removalMode: true,
+        });
+
+        map.addControl(customControl);
+
+      } else {
+        // 右側アイコン非表示
+        tools.forEach(el => el.style.display = 'none');
+
+        // 図形描写も消す
+        map.pm.removeControls();
+        map.removeControl(customControl);
+
+        map.pm.disableDraw();
+        toggleTextMode(false);
+      }
+    }
+
     // --- 地図クリック時の処理（経路探索・テキスト配置・パネル閉じを統合） ---
     map.on('click', (e) => {
       // 1. 【追加】経路探索モードがONの場合
@@ -575,7 +685,9 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
         return container;
       }
     });
-    map.addControl(new CustomActionControl());
+    const customControl = new CustomActionControl();
+    map.addControl(customControl);
+    map.removeControl(customControl); // ★初期は閉じる
 
     function updateZoomIndicator() {
         const zoom = map.getZoom();
