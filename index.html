@@ -472,14 +472,9 @@ button.menu-sub-btn { flex: 1; padding: 8px; font-size: 11px; cursor: pointer; }
         }
     });
 
-    // 緯度経度指定　各都道府県庁所在地
-    //const map = L.map('map', { 
-    //    center: [35.6897, 139.6916], zoom: 15, preferCanvas: true, zoomControl: false 
-    //});
-
     // マップの初期化
     const map = L.map('map', {
-      center: [34.710233985604596, 137.70251668848428], // 緯度経度
+      center: [35.6897, 139.6916], // 緯度経度
       zoom: 15,
       preferCanvas: true, // これを追加
       zoomSnap: 0.1,  // ズーム後の値を0.1単位で固定する
